@@ -3,9 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Nosso Universo de Amor</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #1a0f33, #2c1a5a, #0d0a1a);
+            font-family: 'Arial', sans-serif;
+            cursor: grab;
+        }
+        /* === Chuva de pétalas (canvas) === */
+    #petal-canvas {
+      position:absolute; top:0; left:0;
+      width:100%; height:100%; z-index:-1;
+      pointer-events:none;
+    }
+
+        /* Efeito de Estrelas Caindo */
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: fall 3s linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-100vh) translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* Área das Fotos */
+        .photo-container {
+            position: absolute;
+            z-index: 1;
+            cursor: grab;
+            transition: transform 0.2s;
+        }
+
+        .photo-container:hover {
+            transform: scale(1.05);
+            z-index: 2;
+        }
+
+        .photo {
+            max-width: 200px;
+            max-height: 300px;
+            border: 3px solid #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 62, 197, 0.5);
+        }
+
+        /* Mensagem Romântica */
+        .message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 1.5em;
+            text-shadow: 0 0 10px #000000;
+            z-index: 3;
+        }
+    </style>
 </head>
 <body>
-    <h1>Hello World</h1>
+    <div class="message">Nosso Amor Brilha Mais que as Estrelas ✨</div>
+    <canvas id="petal-canvas"></canvas>
+
+
+    <script>
+        // Criação das estrelas
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+        // — Chuva de pétalas —
+    const canvas = document.getElementById('petal-canvas');
+    const ctx = canvas.getContext('2d');
+    let W,H;
+    function onResize(){
+      W=canvas.width=window.innerWidth;
+      H=canvas.height=window.innerHeight;
+    }
+    window.addEventListener('resize',onResize);
+    onResize();
+    const petalImg = new Image();
+    petalImg.src = 'petal.png';
+    petalImg.src = 'estrela.png', "petal.png";
+
+    class Petal {
+      constructor(){ this.reset(); }
+      reset(){
+        this.x = Math.random()*W;
+        this.y = -20 - Math.random()*H;
+        this.vy = 1+Math.random()*2;
+        this.vx = Math.random()*1 - 0.5;
+        this.size = 20 + Math.random()*30;
+        this.rot = Math.random()*Math.PI*2;
+        this.vr = Math.random()*0.02 - 0.01;
+      }
+      update(){
+        this.x+=this.vx; this.y+=this.vy; this.rot+=this.vr;
+        if(this.y>H+20) this.reset();
+      }
+      draw(){
+        ctx.save();
+        ctx.translate(this.x,this.y);
+        ctx.rotate(this.rot);
+        ctx.globalAlpha = 0.8;
+        ctx.drawImage(petalImg, -this.size/2, -this.size/2, this.size, this.size);
+        ctx.restore();
+      }
+    }
+    const petals = Array.from({length:50},()=>new Petal());
+    (function rainLoop(){
+      requestAnimationFrame(rainLoop);
+      ctx.clearRect(0,0,W,H);
+      petals.forEach(p=>{ p.update(); p.draw(); });
+    })();
+        // Sistema de arrastar fotos
+        let isDragging = false;
+        let currentPhoto = null;
+        let initialX = 0;
+        let initialY = 0;
+        let xOffset = 0;
+        let yOffset = 0;
+
+        document.addEventListener('mousedown', dragStart);
+        document.addEventListener('mouseup', dragEnd);
+        document.addEventListener('mousemove', drag);
+
+        function dragStart(e) {
+            if (e.target.classList.contains('photo')) {
+                isDragging = true;
+                currentPhoto = e.target.parentElement;
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
+                
+                if (currentPhoto.style.transform) {
+                    let matrix = currentPhoto.style.transform.split(/[(),]/g);
+                    xOffset = parseFloat(matrix[1]);
+                    yOffset = parseFloat(matrix[2]);
+                }
+            }
+        }
+
+        function dragEnd() {
+            isDragging = false;
+            initialX = xOffset;
+            initialY = yOffset;
+        }
+
+        function drag(e) {
+            if (isDragging) {
+                e.preventDefault();
+                const currentX = e.clientX - initialX;
+                const currentY = e.clientY - initialY;
+                
+                xOffset = currentX;
+                yOffset = currentY;
+                
+                currentPhoto.style.transform = `translate(${currentX}px, ${currentY}px)`;
+            }
+        }
+
+        // Adicione suas fotos aqui (substitua os URLs)
+        const photos = [
+            'foto1.jpeg',
+            'foto1.jpeg',
+            'foto1.jpeg',
+            // Adicione mais URLs de fotos
+        ];
+
+        photos.forEach((photoUrl, index) => {
+            const container = document.createElement('div');
+            container.className = 'photo-container';
+            container.style.left = (index * 220) % window.innerWidth + 'px';
+            container.style.top = (Math.random() * window.innerHeight) + 'px';
+            
+            const img = document.createElement('img');
+            img.src = photoUrl;
+            img.className = 'photo';
+            img.draggable = false;
+            
+            container.appendChild(img);
+            document.body.appendChild(container);
+        });
+
+        // Inicialização
+        createStars();
+        setInterval(createStars, 3000); // Cria novas estrelas a cada 3 segundos
+    </script>
 </body>
 </html>
