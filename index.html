@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Para Você, Meu Amor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+  <style>
+    /* === Reset e estilos base === */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body, html { width:100%; height:100%; overflow-x:hidden; font-family:sans-serif; }
+
+    /* === Slideshow de fundo === */
+    .background-slider {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-size: cover;
+      background-position: center;
+      z-index: -2;
+      transition: opacity 1s ease-in-out;
+      opacity: 1;
+    }
+    .background-slider.fade-out { opacity: 0; }
+
+    /* === Chuva de pétalas (canvas) === */
+    #petal-canvas {
+      position:absolute; top:0; left:0;
+      width:100%; height:100%; z-index:-1;
+      pointer-events:none;
+    }
+
+    /* === Carta de Amor (seu CSS original) === */
+    body {
+      background: linear-gradient(135deg, #1a1a1a, #4a4a4a);
+      color: #fff;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .old-letter {
+      background: #f5e6ca;
+      padding: 3rem;
+      border-radius: 15px;
+      position: relative;
+      transform: rotate(-1deg);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      max-width: 700px;
+      margin: 3rem auto;
+    }
+    .letter-content {
+      color: #5a3d2b;
+      font-family: 'Georgia', serif;
+      line-height: 1.8;
+      font-size: 1.1em;
+    }
+    .signature {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2em;
+      margin-top: 2rem;
+      text-align: right;
+    }
+    .seal {
+      position: absolute;
+      bottom: -30px;
+      right: -30px;
+      width: 100px;
+      height: 100px;
+      background: rgba(231, 76, 60, 0.1);
+      border: 3px dashed #e74c3c;
+      border-radius: 50%;
+    }
+    .btn {
+      background: #e74c3c;
+      color: white;
+      padding: 15px 35px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      text-align: center;
+      font-size: 1.1em;
+      transition: all 0.3s ease;
+      display: inline-block;
+      margin: 10px auto;
+      text-decoration: none;
+    }
+    .btn:hover {
+      background: #c0392b;
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    /* === Seção 1: Coração interativo === */
+    #section1 {
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      height: 100vh;      /* ajustado para centralizar o coração */
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .heart-container { position:relative; width:200px; height:200px; cursor:pointer; }
+    .heart {
+      position:absolute; top:50%; left:50%;
+      width:100px; height:100px;
+      background:#ffffff; transform:translate(-50%,-50%) rotate(45deg);
+      animation: beat 1s infinite; transition: transform .2s, background .2s;
+    }
+    .heart::before, .heart::after {
+      content:''; position:absolute;
+      width:100px; height:100px; background:#ffffff; border-radius:50%;
+    }
+    .heart::before { top:-50px; left:0; }
+    .heart::after  { left:-50px; top:0; }
+    .heart:hover {
+      background:#ff1a1a;
+      transform:translate(-50%,-50%) rotate(45deg) scale(1.1);
+    }
+    .heart:hover::before, .heart:hover::after { background:#ff1a1a; }
+    @keyframes beat {
+      0%,100% { transform:translate(-50%,-50%) rotate(45deg) scale(1); }
+      50%     { transform:translate(-50%,-50%) rotate(45deg) scale(1.15); }
+    }
+    .message-bubble {
+      position:absolute; background:rgba(255,255,255,.9);
+      padding:8px 16px; border-radius:20px;
+      font-size:.9rem; color:#333;
+      opacity:0; white-space:nowrap;
+      animation: floatUp 2s forwards; pointer-events:none;
+      box-shadow:0 2px 6px rgba(0,0,0,.1);
+    }
+    @keyframes floatUp {
+      0%   { transform:translateY(0) scale(.5); opacity:0; }
+      20%  { transform:translateY(-10px) scale(1); opacity:1; }
+      80%  { opacity:1; }
+      100% { transform:translateY(-80px) scale(.8); opacity:0; }
+    }
+    #typewriter {
+      margin-top:140px; min-height:3em;
+      font-size:1rem; color:#333; white-space:pre-wrap;
+      text-align:center; padding:0 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Slideshow de fundo -->
+  <div class="background-slider"></div>
+
+  <!-- Canvas da chuva de pétalas -->
+  <canvas id="petal-canvas"></canvas>
+
+  <!-- Seção 1: Coração interativo -->
+  <section id="section1">
+    <div class="heart-container" id="hc">
+      <div class="heart" id="heart"></div>
+    </div>
+    <div id="typewriter"></div>
+  </section>
+
+  <!-- Carta de Amor -->
+  <div class="container">
+    <div class="old-letter">
+      <div class="letter-content">
+        <h2>Para a minha princesa,</h2>
+        <p>Feliz aniversário meu bem!</p>
+        <p>Cada momento ao seu lado é algo mágico. Lembro das diversas risadas que tivemos juntos 🤍</p>
+        <p>Você é minha inspiração diária e minha maior alegria. Que possamos continuar escrevendo a nossa linda história por muitos e muitos anos!</p>
+        <p>Passei a semana fazendo este site para colocarmos as nossas fotos, então espero que você goste.</p>
+        <p class="signature">Com todo meu amor,<br>Ryan</p>
+      </div>
+      <div class="seal"></div>
+    </div>
+    <a href="fotos.html" class="btn">Acessar as nossas fotos</a>
+  </div>
+
+  <script>
+    // — Slideshow de fundo —
+    (function() {
+      const images = [
+       
+        'images/fundo3.jpg'
+      ];
+      let current = 0;
+      const slider = document.querySelector('.background-slider');
+      slider.style.backgroundImage = `url('${images[0]}')`;
+      setInterval(() => {
+        current = (current + 1) % images.length;
+        slider.classList.add('fade-out');
+        setTimeout(() => {
+          slider.style.backgroundImage = `url('${images[current]}')`;
+          slider.classList.remove('fade-out');
+        }, 1000);
+      }, 6000);
+    })();
+
+    // — Chuva de pétalas —
+    const canvas = document.getElementById('petal-canvas');
+    const ctx = canvas.getContext('2d');
+    let W,H;
+    function onResize(){
+      W=canvas.width=window.innerWidth;
+      H=canvas.height=window.innerHeight;
+    }
+    window.addEventListener('resize',onResize);
+    onResize();
+    const petalImg = new Image();
+    petalImg.src = 'petal.png';
+    petalImg.src = 'estrela.png', "petal.png";
+
+    class Petal {
+      constructor(){ this.reset(); }
+      reset(){
+        this.x = Math.random()*W;
+        this.y = -20 - Math.random()*H;
+        this.vy = 1+Math.random()*2;
+        this.vx = Math.random()*1 - 0.5;
+        this.size = 20 + Math.random()*30;
+        this.rot = Math.random()*Math.PI*2;
+        this.vr = Math.random()*0.02 - 0.01;
+      }
+      update(){
+        this.x+=this.vx; this.y+=this.vy; this.rot+=this.vr;
+        if(this.y>H+20) this.reset();
+      }
+      draw(){
+        ctx.save();
+        ctx.translate(this.x,this.y);
+        ctx.rotate(this.rot);
+        ctx.globalAlpha = 0.8;
+        ctx.drawImage(petalImg, -this.size/2, -this.size/2, this.size, this.size);
+        ctx.restore();
+      }
+    }
+    const petals = Array.from({length:50},()=>new Petal());
+    (function rainLoop(){
+      requestAnimationFrame(rainLoop);
+      ctx.clearRect(0,0,W,H);
+      petals.forEach(p=>{ p.update(); p.draw(); });
+    })();
+
+    // — Coração interativo + typewriter —
+    const hoverMsgs = [
+      "Você ilumina o meu mundo!",
+      "Seu sorriso aquece meu coração",
+      "Cada instante contigo é mágico",
+      "Eu te amo além das palavras",
+      "Você é minha inspiração para todos os dias",
+      "Eu te amo do fundo da minha alma!",
+      "Você é maravilhosa!",
+      "Sinônimo de perfeição."
+    ];
+    const hc = document.getElementById('hc');
+    let hovInt;
+    hc.addEventListener('mouseenter', () => {
+      hovInt = setInterval(() => {
+        const msg = hoverMsgs[Math.floor(Math.random()*hoverMsgs.length)];
+        const b = document.createElement('div');
+        b.className = 'message-bubble';
+        b.textContent = msg;
+        const x = (Math.random()-0.5)*120, y = (Math.random()-0.5)*40;
+        b.style.left = `calc(50% + ${x}px)`;
+        b.style.top  = `calc(50% + ${y}px)`;
+        hc.appendChild(b);
+        setTimeout(()=> b.remove(),2000);
+      },600);
+    });
+    hc.addEventListener('mouseleave',()=> clearInterval(hovInt));
+
+    const typeEl = document.getElementById('typewriter');
+    const fullTxt = "Meu amor por você cresce a cada dia.\nObrigado por ser quem você é ❤️";
+    document.getElementById('heart').addEventListener('click',()=>{
+      if (typeEl.textContent) return;
+      let i=0;
+      (function t(){
+        if(i<=fullTxt.length){
+          typeEl.textContent = fullTxt.slice(0,i++);
+          setTimeout(t,50);
+        }
+      })();
+    });
+  </script>
+</body>
+</html>
